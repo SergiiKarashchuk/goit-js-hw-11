@@ -5,7 +5,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import NewsApiService from './newsApiService';
 import LoadMoreBtn from './load-more-btn';
 
-const axios = require('axios');
+import axios from 'axios';
 
 const form = document.querySelector('.search-form');
 form.addEventListener('submit', onSearch);
@@ -23,10 +23,18 @@ let gallerySimpleLightbox = new SimpleLightbox('.gallery a');
 
 function onSearch(evt) {
   evt.preventDefault();
+  clearImagesContainer();
   newsApiService.searchQuery = evt.currentTarget.elements.searchQuery.value;
-  if (newsApiService.searchQuery === '') {
-    return alert('Enter your request');
+  if (newsApiService.searchQuery.trim() === '') {
+    Notiflix.Notify.info('Enter your request');
+    return;
   }
+  if ((newsApiService.hits = [])) {
+    Notiflix.Notify.warning(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+  }
+
   loadMoreBtn.show();
   loadMoreBtn.disable();
 
@@ -34,6 +42,7 @@ function onSearch(evt) {
     appendImagesMarkup(hits);
     gallerySimpleLightbox.refresh();
     loadMoreBtn.enable();
+    console.log(hits);
   });
 }
 
@@ -83,4 +92,9 @@ function createInfoMurkup(hits) {
 }
 function appendImagesMarkup(hits) {
   imagesContainer.insertAdjacentHTML('beforeend', createInfoMurkup(hits));
+  // console.log(hits);
+}
+
+function clearImagesContainer() {
+  imagesContainer.innerHTML = '';
 }
