@@ -5,8 +5,6 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import NewsApiService from './newsApiService';
 import LoadMoreBtn from './load-more-btn';
 
-import axios from 'axios';
-
 const form = document.querySelector('.search-form');
 form.addEventListener('submit', onSearch);
 
@@ -29,7 +27,7 @@ function onSearch(evt) {
     Notiflix.Notify.info('Enter your request');
     return;
   }
-  if ((newsApiService.hits = [])) {
+  if (newsApiService.hits === []) {
     Notiflix.Notify.warning(
       'Sorry, there are no images matching your search query. Please try again.'
     );
