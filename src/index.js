@@ -1,67 +1,86 @@
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 // Додатковий імпорт стилів
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import NewsApiService from './newsApiService';
+import LoadMoreBtn from './load-more-btn';
 
 const axios = require('axios');
 
-// pixabay.com
-// Your API key: 32924777-bff65c7180090804fc87cb2e9
-
 const form = document.querySelector('.search-form');
 form.addEventListener('submit', onSearch);
-const loadMoreBtn = document.querySelector('.load-more');
-loadMoreBtn.addEventListener('click', onLoadMore);
 
+const imagesContainer = document.querySelector('.gallery');
+const loadMoreBtn = new LoadMoreBtn({
+  selector: '[data-action="load-more"]',
+  hidden: true,
+});
+loadMoreBtn.refs.button.addEventListener('click', onLoadMore);
 const newsApiService = new NewsApiService();
 console.log(newsApiService);
+
+let gallerySimpleLightbox = new SimpleLightbox('.gallery a');
 
 function onSearch(evt) {
   evt.preventDefault();
   newsApiService.searchQuery = evt.currentTarget.elements.searchQuery.value;
-  newsApiService.getApi();
+  if (newsApiService.searchQuery === '') {
+    return alert('Enter your request');
+  }
+  loadMoreBtn.show();
+  loadMoreBtn.disable();
+
+  newsApiService.getApi().then(hits => {
+    appendImagesMarkup(hits);
+    gallerySimpleLightbox.refresh();
+    loadMoreBtn.enable();
+  });
 }
 
 function onLoadMore() {
-  newsApiService.getApi();
+  loadMoreBtn.disable();
+  newsApiService.getApi().then(hits => {
+    appendImagesMarkup(hits);
+    gallerySimpleLightbox.refresh();
+    loadMoreBtn.enable();
+  });
 }
-
-// const refs = {
-//   form: document.querySelector('.search-form'),
-//   loadMoreBtn: document.querySelector('.load-more'),
-// };
-
-// refs.form.addEventListener('submit', onSearch);
-// refs.loadMoreBtn.addEventListener('click', onLoadMore);
-
-// let searchQuery = '';
-
-// function onSearch(evt) {
-//   evt.preventDefault();
-//   searchQuery = evt.currentTarget.elements.searchQuery.value;
-
-//   const options = {
-//     headers: {
-//       API_KEY: '32924777-bff65c7180090804fc87cb2e9',
-//     },
-//   };
-//   const url = `https://pixabay.com/api/?key=${API_KEY}&q=${searchQuery}&image_type="photo"&orientation="horizontal"&safesearch="true"`;
-
-//   fetch(url, options)
-//     .then(response => response.json())
-//     .then(console.log);
-// }
-
-// function onLoadMore() {
-//   const options = {
-//     headers: {
-//       API_KEY: '32924777-bff65c7180090804fc87cb2e9',
-//     },
-//   };
-//   const url = `https://pixabay.com/api/?key=${API_KEY}&q=${searchQuery}&image_type="photo"&orientation="horizontal"&safesearch="true"`;
-
-//   fetch(url, options)
-//     .then(response => response.json())
-//     .then(console.log);
-// }
+function createInfoMurkup(hits) {
+  return hits
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => {
+        return `
+        <div class="photo-card">
+        <a class="gallery__link" href="${largeImageURL}">
+<img class="gallery__image" src="${webformatURL}" alt="${tags}" width = "150" heigh = "100" loading="lazy" />
+</a>
+<div class="info">
+  <p class="info-item">
+    <b>Likes</b>
+    ${likes}</p>
+  <p class="info-item">
+    <b>Views</b>
+    ${views}</p>
+  <p class="info-item">
+    <b>Comments</b>
+  ${comments}</p>
+  <p class="info-item">
+    <b>Downloads</b>
+    ${downloads}</p>
+</div>
+</div>`;
+      }
+    )
+    .join('');
+}
+function appendImagesMarkup(hits) {
+  imagesContainer.insertAdjacentHTML('beforeend', createInfoMurkup(hits));
+}

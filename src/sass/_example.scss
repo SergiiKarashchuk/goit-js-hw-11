@@ -1,8 +1,15 @@
-.load-more {
+.btn-primary {
   display: flex;
   margin-top: 10px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.btn-primary.is-hidden {
+  display: none;
+}
+.btn-primary > .spinner.is-hidden {
+  display: none;
 }
 
 .search-form {
@@ -15,4 +22,15 @@
   display: flex;
   justify-content: center;
   align-content: center;
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+}
+
+.photo-card {
+  margin: 5px;
 }

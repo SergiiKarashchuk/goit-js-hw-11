@@ -4,7 +4,7 @@ export default class NewsApiService {
     this.page = 1;
   }
 
-  getApi(searchQuery) {
+  getApi() {
     console.log(this);
     const BASE_URL = 'https://pixabay.com/api/';
     const API_KEY = '32924777-bff65c7180090804fc87cb2e9';
@@ -16,12 +16,20 @@ export default class NewsApiService {
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      //   return response.json();
+
       return response.json().then(data => {
-        console.log(data);
-        this.page += 1;
+        this.incrementPage();
+        return data.hits;
       });
     });
+  }
+
+  incrementPage() {
+    this.page += 1;
+  }
+
+  resetPage() {
+    this.page = 1;
   }
 
   get query() {
