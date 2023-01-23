@@ -26,6 +26,10 @@ export default class NewsApiService {
     this.page = 1;
   }
 
+  loadMoreBtnEnable() {
+    this.page < Math.ceil(this.totalHits / this.per_page);
+  }
+
   get query() {
     return this._searchQuery;
   }

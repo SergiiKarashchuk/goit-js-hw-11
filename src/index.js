@@ -27,27 +27,35 @@ function onSearch(evt) {
     Notiflix.Notify.info('Enter your request');
     return;
   }
-  if (newsApiService.hits === []) {
-    Notiflix.Notify.warning(
-      'Sorry, there are no images matching your search query. Please try again.'
-    );
-  }
-
-  loadMoreBtn.show();
-  loadMoreBtn.disable();
 
   newsApiService.getApi().then(hits => {
-    appendImagesMarkup(hits);
+    newsApiService.resetPage();
+    imagesContainer.insertAdjacentHTML('beforeend', createInfoMurkup(hits));
+
     gallerySimpleLightbox.refresh();
+    loadMoreBtn.show();
     loadMoreBtn.enable();
+    if (hits.length === 0) {
+      Notiflix.Notify.warning(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      loadMoreBtn.hide();
+    }
+    if (hits.length < 40 && hits.length > 1) {
+      Notiflix.Notify.warning(
+        "We're sorry, but you've reached the end of search results."
+      );
+      loadMoreBtn.hide();
+    }
     console.log(hits);
   });
 }
 
 function onLoadMore() {
-  loadMoreBtn.disable();
+  newsApiService.incrementPage();
+  console.log(newsApiService);
   newsApiService.getApi().then(hits => {
-    appendImagesMarkup(hits);
+    imagesContainer.insertAdjacentHTML('beforeend', createInfoMurkup(hits));
     gallerySimpleLightbox.refresh();
     loadMoreBtn.enable();
   });
@@ -88,10 +96,9 @@ function createInfoMurkup(hits) {
     )
     .join('');
 }
-function appendImagesMarkup(hits) {
-  imagesContainer.insertAdjacentHTML('beforeend', createInfoMurkup(hits));
-  // console.log(hits);
-}
+// function appendImagesMarkup(hits) {
+//   imagesContainer.insertAdjacentHTML('beforeend', createInfoMurkup(hits));
+// }
 
 function clearImagesContainer() {
   imagesContainer.innerHTML = '';
