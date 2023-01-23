@@ -56,6 +56,12 @@ function onLoadMore() {
   console.log(newsApiService);
   newsApiService.getApi().then(hits => {
     imagesContainer.insertAdjacentHTML('beforeend', createInfoMurkup(hits));
+    if (hits.length < 40 && hits.length > 1) {
+      Notiflix.Notify.warning(
+        "We're sorry, but you've reached the end of search results."
+      );
+      loadMoreBtn.hide();
+    }
     gallerySimpleLightbox.refresh();
     loadMoreBtn.enable();
   });
